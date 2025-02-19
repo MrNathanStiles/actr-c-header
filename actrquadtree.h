@@ -19,8 +19,10 @@ struct ActrQuadTreeLeaf
     void *item;
     struct ActrQuadTree *parent;
 };
+void newleaf(long long x, long long y, long long w, long long h);
 struct ActrQuadTreeLeaf *actr_quad_tree_leaf(long long x, long long y, long long w, long long h, void *item)
 {
+    newleaf(x,y,w,h);
     struct ActrQuadTreeLeaf *leaf = (struct ActrQuadTreeLeaf *)actr_malloc(sizeof(struct ActrQuadTreeLeaf));
     leaf->bounds.point.x = x;
     leaf->bounds.point.y = y;
@@ -53,8 +55,10 @@ struct ActrPointD actr_quad_tree_bounds_center(struct ActrQuadTreeBounds * bound
     return result;
     
 }
+void qtinit(int root, long long x, long long y, long long size, struct ActrQuadTree *parent);
 struct ActrQuadTree *actr_quad_tree_init(int root, long long x, long long y, long long size, struct ActrQuadTree *parent)
 {
+    qtinit(root, x,y,size,parent);
     struct ActrQuadTree *result = (struct ActrQuadTree *)actr_malloc(sizeof(struct ActrQuadTree));
     result->root = root;
     result->bounds.point.x = x;
@@ -352,7 +356,7 @@ void actr_quad_tree_remove(struct ActrQuadTreeLeaf *leaf)
     _actr_quad_tree_remove_tree(tree);
     
 }
-
+void QTINS();
 void actr_quad_tree_insert(struct ActrQuadTree *tree, struct ActrQuadTreeLeaf *newLeaf)
 {
     if (tree->root)
@@ -362,7 +366,7 @@ void actr_quad_tree_insert(struct ActrQuadTree *tree, struct ActrQuadTreeLeaf *n
             _actr_quad_tree_grow(tree);
         }
     }
-
+    QTINS();
     actr_vector_add(tree->items, newLeaf);
     newLeaf->parent = tree;
 

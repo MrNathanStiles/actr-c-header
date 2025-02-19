@@ -107,7 +107,7 @@ void _actr_ui_gradient_dispose(struct ActrUIControlGradient *gradient)
     _actr_ui_control_dispose((struct ActrUIControl *)gradient);
 }
 
-void actr_ui_init()
+void actr_ui_init(int w, int h)
 {
     actr_ui_state = actr_malloc(sizeof(struct ActrUIState));
     actr_ui_state->controls = actr_hash_table_init();
@@ -116,6 +116,8 @@ void actr_ui_init()
     actr_ui_state->sequence = 1;
     actr_ui_state->focused = (struct ActrUIControl *)0;
     actr_ui_state->hovered = (struct ActrUIControl *)0;
+    actr_ui_state->canvas_size.w = w;
+    actr_ui_state->canvas_size.h = h;
     actr_ui_invalidate();
 }
 
@@ -291,9 +293,10 @@ int _actr_ui_query_sort_comparator(void * a, void * b) {
     }
     return c1->zindex < c2->zindex;
 }
-
+void uiquery(int x, int y, int w, int h);
 void _actr_ui_query(int x, int y, int w, int h)
 {
+    uiquery(x,y,w,h);
     struct ActrQuadTreeBounds area;
     area.point.x = x;
     area.point.y = y;
@@ -636,6 +639,7 @@ void _actr_ui_draw_button(struct ActrUIControlButton *button)
     
     actr_canvas2d_stroke_rect(bounds->point.x, bounds->point.y, bounds->size.w, bounds->size.h);
 }
+void drawing(int i);
 void actr_ui_draw(double delta)
 {
     if (actr_ui_state->valid == 1) {
@@ -648,6 +652,7 @@ void actr_ui_draw(double delta)
 
     _actr_ui_query(0, 0, actr_ui_state->canvas_size.w, actr_ui_state->canvas_size.h);
     
+    drawing(actr_ui_state->results->count);
     for (int i = 0; i < actr_ui_state->results->count; i++)
     {
         struct ActrQuadTreeLeaf * leaf = (struct ActrQuadTreeLeaf *)actr_ui_state->results->head[i];
