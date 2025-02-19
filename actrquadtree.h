@@ -1,5 +1,6 @@
 #ifndef ACTRQUADTREE_H
 #define ACTRQUADTREE_H
+#include "actrwasm.h"
 #include "actralloc.h"
 #include "actrvector.h"
 #include "actrcanvas.h"
@@ -20,7 +21,7 @@ struct ActrQuadTreeLeaf
 };
 struct ActrQuadTreeLeaf *actr_quad_tree_leaf(long long x, long long y, long long w, long long h, void *item)
 {
-    struct ActrQuadTreeLeaf *leaf = actr_malloc(sizeof(struct ActrQuadTreeLeaf));
+    struct ActrQuadTreeLeaf *leaf = (struct ActrQuadTreeLeaf *)actr_malloc(sizeof(struct ActrQuadTreeLeaf));
     leaf->bounds.point.x = x;
     leaf->bounds.point.y = y;
     leaf->bounds.size.w = w;
@@ -54,7 +55,7 @@ struct ActrPointD actr_quad_tree_bounds_center(struct ActrQuadTreeBounds * bound
 }
 struct ActrQuadTree *actr_quad_tree_init(int root, long long x, long long y, long long size, struct ActrQuadTree *parent)
 {
-    struct ActrQuadTree *result = actr_malloc(sizeof(struct ActrQuadTree));
+    struct ActrQuadTree *result = (struct ActrQuadTree *)actr_malloc(sizeof(struct ActrQuadTree));
     result->root = root;
     result->bounds.point.x = x;
     result->bounds.point.y = y;
@@ -62,7 +63,7 @@ struct ActrQuadTree *actr_quad_tree_init(int root, long long x, long long y, lon
     result->bounds.size.h = size;
     result->items = actr_vector_init(ACTR_QUAD_TREE_LIST_MAX, 0);
     result->stuck = actr_vector_init(4, 4);
-    result->branch = actr_malloc(4 * sizeof(struct ActrQuadTree *));
+    result->branch = (struct ActrQuadTree **)actr_malloc(4 * sizeof(struct ActrQuadTree *));
     result->parent = parent;
     return result;
 }
@@ -106,7 +107,7 @@ int _actr_quad_tree_bounds_contains(struct ActrQuadTreeBounds *bounds, struct Ac
 }
 void _actr_quad_tree_grow(struct ActrQuadTree *tree)
 {
-    struct ActrQuadTree *new;
+    struct ActrQuadTree *newTree;
     long long size = tree->bounds.size.w;
     long long halfSize = size / 2;
     if (tree->branch[0])
@@ -114,40 +115,40 @@ void _actr_quad_tree_grow(struct ActrQuadTree *tree)
         // 0 1
         // 3 2
         // 0 becomes 2 in new 0
-        new = actr_quad_tree_init(0, tree->bounds.point.x - halfSize, tree->bounds.point.y - halfSize, size, tree);
-        tree->branch[0]->parent = new;
-        new->branch[2] = tree->branch[0];
-        tree->branch[0] = new;
+        newTree = actr_quad_tree_init(0, tree->bounds.point.x - halfSize, tree->bounds.point.y - halfSize, size, tree);
+        tree->branch[0]->parent = newTree;
+        newTree->branch[2] = tree->branch[0];
+        tree->branch[0] = newTree;
     }
     if (tree->branch[1])
     {
         // 0 1
         // 3 2
         // 1 becomes 3 in new 1
-        new = actr_quad_tree_init(0, tree->bounds.point.x + halfSize, tree->bounds.point.y - halfSize, size, tree);
-        tree->branch[1]->parent = new;
-        new->branch[3] = tree->branch[1];
-        tree->branch[1] = new;
+        newTree = actr_quad_tree_init(0, tree->bounds.point.x + halfSize, tree->bounds.point.y - halfSize, size, tree);
+        tree->branch[1]->parent = newTree;
+        newTree->branch[3] = tree->branch[1];
+        tree->branch[1] = newTree;
     }
     if (tree->branch[2])
     {
         // 0 1
         // 3 2
         // 2 becomes 0
-        new = actr_quad_tree_init(0, tree->bounds.point.x + halfSize, tree->bounds.point.y + halfSize, size, tree);
-        tree->branch[2]->parent = new;
-        new->branch[0] = tree->branch[2];
-        tree->branch[2] = new;
+        newTree = actr_quad_tree_init(0, tree->bounds.point.x + halfSize, tree->bounds.point.y + halfSize, size, tree);
+        tree->branch[2]->parent = newTree;
+        newTree->branch[0] = tree->branch[2];
+        tree->branch[2] = newTree;
     }
     if (tree->branch[3])
     {
         // 0 1
         // 3 2
         // 3 becomes 1
-        new = actr_quad_tree_init(0, tree->bounds.point.x - halfSize, tree->bounds.point.y + halfSize, size, tree);
-        tree->branch[3]->parent = new;
-        new->branch[1] = tree->branch[3];
-        tree->branch[3] = new;
+        newTree = actr_quad_tree_init(0, tree->bounds.point.x - halfSize, tree->bounds.point.y + halfSize, size, tree);
+        tree->branch[3]->parent = newTree;
+        newTree->branch[1] = tree->branch[3];
+        tree->branch[3] = newTree;
     }
 
     tree->bounds.point.x -= halfSize;
@@ -205,7 +206,7 @@ void actr_quad_tree_draw(struct ActrQuadTree *tree, struct ActrPoint64 offset)
 
     while (trees->count)
     {
-        tree = trees->head[0];
+        tree = (struct ActrQuadTree *)trees->head[0];
 
         actr_canvas2d_stroke_style(0, 255, 0, 10);
         _actr_quad_tree_draw_bounds(&tree->bounds, offset);
@@ -255,7 +256,7 @@ void actr_quad_tree_query(struct ActrQuadTree *root, struct ActrQuadTreeBounds *
 
     while (list->count)
     {
-        struct ActrQuadTree *tree = list->head[0];
+        struct ActrQuadTree *tree = (struct ActrQuadTree *)list->head[0];
         actr_vector_remove(list, 0);
         for (int i = 0; i < 4; i++)
         {
@@ -266,7 +267,7 @@ void actr_quad_tree_query(struct ActrQuadTree *root, struct ActrQuadTreeBounds *
         }
         for (int i = 0; i < tree->items->count; i++)
         {
-            struct ActrQuadTreeLeaf *leaf = tree->items->head[i];
+            struct ActrQuadTreeLeaf *leaf = (struct ActrQuadTreeLeaf *)tree->items->head[i];
             if (_actr_quad_tree_bounds_intersects(area, &leaf->bounds))
             {
                 actr_vector_add(results, leaf);
@@ -275,7 +276,7 @@ void actr_quad_tree_query(struct ActrQuadTree *root, struct ActrQuadTreeBounds *
 
         for (int i = 0; i < tree->stuck->count; i++)
         {
-            struct ActrQuadTreeLeaf *leaf = tree->stuck->head[i];
+            struct ActrQuadTreeLeaf *leaf = (struct ActrQuadTreeLeaf *)tree->stuck->head[i];
             if (_actr_quad_tree_bounds_intersects(area, &leaf->bounds))
             {
                 actr_vector_add(results, leaf);
@@ -371,7 +372,7 @@ void actr_quad_tree_insert(struct ActrQuadTree *tree, struct ActrQuadTreeLeaf *n
     }
     for (int i = 0; i < tree->items->count; i++)
     {
-        newLeaf = tree->items->head[i];
+        newLeaf = (struct ActrQuadTreeLeaf *)tree->items->head[i];
 
         int index = _actr_quad_tree_index(tree, &newLeaf->bounds);
 
