@@ -81,19 +81,6 @@ struct ActrSizeD // size 16
     double h; // index 8, size 8
 };
 
-struct ActrState // size 28
-{
-    // canvasSize will be updated automatically
-    struct ActrSize32 canvasSize; // index 0, size 8
-    // pointer position will be updated automatically
-    struct ActrPoint32 pointerPosition; // index 8, size 8
-    // text size will be updated when actr_canvas2d_measureText is called
-    struct ActrSize32 textSize; // index 16, size 8
-    int debug;                  // index 20, size 4
-};
-
-struct ActrState *actrState;
-
 struct ActrPointD actr_sub(struct ActrPointD *a, struct ActrPointD *b)
 {
     struct ActrPointD result;
@@ -138,13 +125,6 @@ void actr_unpack_bytes(unsigned int value, unsigned char *r, unsigned char *g, u
     *g = (value >> 16) & 0xFF;
     *b = (value >> 8) & 0xFF;
     *a = value & 0xFF;
-}
-/// @brief internal use
-[[clang::export_name("_actr_sanity")]]
-void _actr_sanity()
-{
-    actrState = actr_malloc(sizeof(struct ActrState));
-    _actr_sanity_size(sizeof(int), sizeof(long long), sizeof(float), sizeof(double), sizeof(struct ActrState), actrState);
 }
 
 /// @brief get length of null terminated string

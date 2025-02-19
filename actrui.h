@@ -47,6 +47,7 @@ struct ActrUIState
     struct ActrUIControl * hovered;
     struct ActrUIControl * focused;
     int valid;
+    struct ActrSize32 canvas_size;
 };
 
 struct ActrUIControlGradient
@@ -635,7 +636,6 @@ void _actr_ui_draw_button(struct ActrUIControlButton *button)
     
     actr_canvas2d_stroke_rect(bounds->point.x, bounds->point.y, bounds->size.w, bounds->size.h);
 }
-void mty(long long y);
 void actr_ui_draw(double delta)
 {
     if (actr_ui_state->valid == 1) {
@@ -644,9 +644,9 @@ void actr_ui_draw(double delta)
     actr_ui_state->valid = 1;
     // clear canvas
     actr_canvas2d_fill_style(0, 0, 0, 100);
-    actr_canvas2d_fill_rect(-10, -10, actrState->canvasSize.w + 20, actrState->canvasSize.h + 20);
+    actr_canvas2d_fill_rect(-10, -10, actr_ui_state->canvas_size.w + 20, actr_ui_state->canvas_size.h + 20);
 
-    _actr_ui_query(0, 0, actrState->canvasSize.w, actrState->canvasSize.h);
+    _actr_ui_query(0, 0, actr_ui_state->canvas_size.w, actr_ui_state->canvas_size.h);
     
     for (int i = 0; i < actr_ui_state->results->count; i++)
     {
@@ -692,24 +692,6 @@ void actr_ui_draw(double delta)
 
     actr_ui_state->results->count = 0;
 
-    if (actrState->debug)
-    {
-        // draw memory report
-        actr_log("drawing memory");
-        char *mem = actr_memory_report();
-        actr_canvas2d_measure_text(mem);
-        actr_canvas2d_fill_style(0, 0, 0, 100);
-
-        actr_canvas2d_fill_rect(0, 0, actrState->textSize.w + 2, actrState->textSize.h + 3);
-        actr_canvas2d_fill_style(255, 255, 255, 100);
-        mty(actrState->textSize.h);
-        actr_canvas2d_fill_text(1, actrState->textSize.h, mem);
-        actr_free(mem);
-        struct ActrPoint64 offset;
-        offset.x = 0;
-        offset.y = 0;
-        actr_quad_tree_draw(actr_ui_state->tree, offset);
-    }
 }
 
 #endif
