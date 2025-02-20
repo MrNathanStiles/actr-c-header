@@ -1,5 +1,6 @@
 #ifndef ACTRGITHUB_H
 #define ACTRGITHUB_H
+#include "actrwasm.h"
 #include "actrasync.h"
 extern int _actr_fetch_text_length(char * url, int urlLength, int mapId, char * name, int nameLength);
 
