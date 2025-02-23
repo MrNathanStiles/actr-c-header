@@ -146,7 +146,7 @@ char *substr(char *text, int start, int length)
     {
         length = strlen(text) - start;
     }
-    char *newText = actr_malloc(length + 1);
+    char *newText = (char *)actr_malloc(length + 1);
 
     for (int i = 0; i < length; i++)
     {
@@ -161,11 +161,12 @@ void actr_heap_string(char **target, char *text)
         actr_free(*target);
     }
     int size = strlen(text);
-    char *result = actr_malloc(size + 1);
+    char *result = (char *)actr_malloc(size + 1);
     for (int i = 0; i < size; i++)
     {
         result[i] = text[i];
     }
     *target = result;
 }
+void actr_debugger(int value);
 #endif

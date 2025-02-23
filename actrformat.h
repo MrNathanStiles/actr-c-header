@@ -1,7 +1,6 @@
 #ifndef ACTRFORMAT_H
 #define ACTRFORMAT_H
 #include "actrntos.h"
-#include "actrlog.h"
 #include "actrvector.h"
 
 struct ActrFormatState
@@ -12,7 +11,7 @@ struct ActrFormatState
 };
 struct ActrFormatState *actr_format(char *format)
 {
-    struct ActrFormatState *afs = actr_malloc(sizeof(struct ActrFormatState));
+    struct ActrFormatState *afs = (struct ActrFormatState *)actr_malloc(sizeof(struct ActrFormatState));
     afs->values = actr_vector_init(4, 4);
     afs->allocated = actr_vector_init(4, 4);
     afs->format = format;
@@ -23,7 +22,6 @@ void actr_format_float(struct ActrFormatState *state, double value)
     actr_vector_add(state->allocated, (void *)state->values->count);
     // actr_vector_add(state->values, ftos(value, precision));
     actr_vector_add(state->values, float_to_char(value));
-    
 }
 
 void actr_format_int(struct ActrFormatState *state, long long value)
@@ -54,11 +52,11 @@ char *actr_format_close(struct ActrFormatState *state)
 
     for (int i = 0; i < state->values->count; i++)
     {
-        lengths[i] = strlen(state->values->head[i]);
+        lengths[i] = strlen((const char *)state->values->head[i]);
         length += lengths[i];
     }
 
-    char *result = actr_malloc(length + 1);
+    char *result = (char *)actr_malloc(length + 1);
     int pos = 0;
     int flag = 0;
     int index = 0;

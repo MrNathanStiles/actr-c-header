@@ -25,16 +25,16 @@ struct ActrUIControl
     unsigned int foregroundColor;
     unsigned int backgroundColor;
     unsigned int borderColor;
-    
+
     unsigned int foregroundColorHovered;
     unsigned int backgroundColorHovered;
     unsigned int borderColorHovered;
-    
+
     unsigned int foregroundColorFocused;
     unsigned int backgroundColorFocused;
     unsigned int borderColorFocused;
-    
-    void * state;
+
+    void *state;
     int zindex;
 };
 
@@ -44,8 +44,8 @@ struct ActrUIState
     struct ActrVector *results;
     struct ActrQuadTree *tree;
     int sequence;
-    struct ActrUIControl * hovered;
-    struct ActrUIControl * focused;
+    struct ActrUIControl *hovered;
+    struct ActrUIControl *focused;
     int valid;
     struct ActrSize32 canvas_size;
 };
@@ -72,9 +72,10 @@ struct ActrUIControlContainer
     struct ActrUIControl control;
 };
 
-struct ActrUIState * actr_ui_state;
+struct ActrUIState *actr_ui_state;
 
-void actr_ui_invalidate() {
+void actr_ui_invalidate()
+{
     actr_ui_state->valid = 0;
     actr_log("invalidated");
 }
@@ -109,7 +110,7 @@ void _actr_ui_gradient_dispose(struct ActrUIControlGradient *gradient)
 
 void actr_ui_init(int w, int h)
 {
-    actr_ui_state = actr_malloc(sizeof(struct ActrUIState));
+    actr_ui_state = (struct ActrUIState *)actr_malloc(sizeof(struct ActrUIState));
     actr_ui_state->controls = actr_hash_table_init();
     actr_ui_state->results = actr_vector_init(8, 8);
     actr_ui_state->tree = actr_quad_tree_init(1, 256, 256, 64, 0);
@@ -123,16 +124,17 @@ void actr_ui_init(int w, int h)
 
 struct ActrUIControl *actr_ui_get_control(int identity)
 {
-    return actr_hash_table_find(actr_ui_state->controls, identity);
+    return (ActrUIControl *)actr_hash_table_find(actr_ui_state->controls, identity);
 }
 
 void actr_ui_remove_control(void *remove)
 {
-    if (remove == 0) {
+    if (remove == 0)
+    {
         return;
     }
     actr_ui_invalidate();
-    struct ActrUIControl * control = remove;
+    struct ActrUIControl *control = (struct ActrUIControl *)remove;
     actr_quad_tree_remove(control->leaf);
     switch (control->type)
     {
@@ -164,7 +166,9 @@ void _actr_ui_key_down_text(struct ActrUIControlText *text, int key)
         if (text->cursor < 0)
         {
             text->cursor = 0;
-        } else {
+        }
+        else
+        {
             actr_ui_invalidate();
         }
     }
@@ -175,7 +179,9 @@ void _actr_ui_key_down_text(struct ActrUIControlText *text, int key)
         if (text->cursor > currentLength)
         {
             text->cursor = currentLength;
-        } else {
+        }
+        else
+        {
             actr_ui_invalidate();
         }
     }
@@ -188,7 +194,7 @@ void _actr_ui_key_down_text(struct ActrUIControlText *text, int key)
         }
         actr_ui_invalidate();
         newLength = currentLength - 1;
-        newValue = actr_malloc(newLength + 1);
+        newValue = (char *)actr_malloc(newLength + 1);
         for (int i = 0; i < newLength; i++)
         {
             if (i < text->cursor - 1)
@@ -213,7 +219,7 @@ void _actr_ui_key_down_text(struct ActrUIControlText *text, int key)
         }
         actr_ui_invalidate();
         newLength = currentLength - 1;
-        newValue = actr_malloc(newLength + 1);
+        newValue = (char *)actr_malloc(newLength + 1);
         for (int i = 0; i < newLength; i++)
         {
             if (i <= text->cursor - 1)
@@ -231,7 +237,7 @@ void _actr_ui_key_down_text(struct ActrUIControlText *text, int key)
     else if (key >= 32 && key <= 126)
     {
         newLength = currentLength + 1;
-        newValue = actr_malloc(newLength + 1);
+        newValue = (char *)actr_malloc(newLength + 1);
         actr_ui_invalidate();
         for (int i = 0; i < newLength; i++)
         {
@@ -254,7 +260,7 @@ void _actr_ui_key_down_text(struct ActrUIControlText *text, int key)
     }
 }
 
-struct ActrUIControl * actr_ui_key_down(int key)
+struct ActrUIControl *actr_ui_key_down(int key)
 {
 
     // key
@@ -285,11 +291,13 @@ struct ActrUIControl * actr_ui_key_down(int key)
     return control;
 }
 
-int _actr_ui_query_sort_comparator(void * a, void * b) {
-    struct ActrUIControl * c1 = (struct ActrUIControl *)(((struct ActrQuadTreeLeaf *)a)->item);
-    struct ActrUIControl * c2 = (struct ActrUIControl *)(((struct ActrQuadTreeLeaf *)b)->item);
-    if (c1->zindex == c2->zindex) {
-        return c1->identity < c2->identity;    
+int _actr_ui_query_sort_comparator(void *a, void *b)
+{
+    struct ActrUIControl *c1 = (struct ActrUIControl *)(((struct ActrQuadTreeLeaf *)a)->item);
+    struct ActrUIControl *c2 = (struct ActrUIControl *)(((struct ActrQuadTreeLeaf *)b)->item);
+    if (c1->zindex == c2->zindex)
+    {
+        return c1->identity < c2->identity;
     }
     return c1->zindex < c2->zindex;
 }
@@ -307,10 +315,10 @@ void _actr_ui_query(int x, int y, int w, int h)
 struct ActrUIControl *actr_ui_move(int x, int y)
 {
     _actr_ui_query(x, y, 1, 1);
-    struct ActrUIControl * hovered = 0;
+    struct ActrUIControl *hovered = 0;
     for (int i = 0; i < actr_ui_state->results->count; i++)
     {
-        struct ActrQuadTreeLeaf * leaf = (struct ActrQuadTreeLeaf *)actr_ui_state->results->head[i];
+        struct ActrQuadTreeLeaf *leaf = (struct ActrQuadTreeLeaf *)actr_ui_state->results->head[i];
         struct ActrUIControl *result = (struct ActrUIControl *)leaf->item;
         if (hovered == 0 || result->zindex > hovered->zindex)
         {
@@ -327,7 +335,7 @@ struct ActrUIControl *actr_ui_move(int x, int y)
     return actr_ui_state->hovered;
 }
 
-void _actr_ui_set_focus(struct ActrUIControl * control)
+void _actr_ui_set_focus(struct ActrUIControl *control)
 {
     if (actr_ui_state->focused == control)
     {
@@ -342,16 +350,16 @@ void _actr_ui_set_focus(struct ActrUIControl * control)
     actr_ui_invalidate();
 }
 
-struct ActrUIControl * actr_ui_tap(int x, int y)
+struct ActrUIControl *actr_ui_tap(int x, int y)
 {
     _actr_ui_query(x, y, 1, 1);
 
-    struct ActrUIControl * target = 0;
+    struct ActrUIControl *target = 0;
     for (int i = 0; i < actr_ui_state->results->count; i++)
     {
-        struct ActrQuadTreeLeaf * leaf = (struct ActrQuadTreeLeaf *)actr_ui_state->results->head[i];
+        struct ActrQuadTreeLeaf *leaf = (struct ActrQuadTreeLeaf *)actr_ui_state->results->head[i];
         struct ActrUIControl *result = (struct ActrUIControl *)leaf->item;
-        
+
         if (target == 0 || result->zindex > target->zindex)
         {
             target = result;
@@ -362,25 +370,24 @@ struct ActrUIControl * actr_ui_tap(int x, int y)
     return target;
 }
 
-void _actr_ui_default(struct ActrUIControl * control)
+void _actr_ui_default(struct ActrUIControl *control)
 {
     control->backgroundColor = actr_pack_bytes(127, 127, 127, 100);
     control->foregroundColor = actr_pack_bytes(0, 0, 0, 100);
     control->borderColor = actr_pack_bytes(255, 255, 255, 100);
-    
+
     control->backgroundColorHovered = actr_pack_bytes(255, 255, 255, 100);
     control->foregroundColorHovered = actr_pack_bytes(0, 0, 0, 100);
     control->borderColorHovered = actr_pack_bytes(255, 0, 0, 100);
-    
+
     control->backgroundColorFocused = actr_pack_bytes(0, 0, 0, 100);
     control->foregroundColorFocused = actr_pack_bytes(255, 255, 255, 100);
     control->borderColorFocused = actr_pack_bytes(255, 255, 255, 100);
-    
 }
 
 struct ActrUIControlButton *actr_ui_button(int x, int y, int w, int h, char *label)
 {
-    struct ActrUIControlButton *button = actr_malloc(sizeof(struct ActrUIControlButton));
+    struct ActrUIControlButton *button = (struct ActrUIControlButton *)actr_malloc(sizeof(struct ActrUIControlButton));
     _actr_ui_default(&button->control);
     button->control.type = ActrUITypeButton;
     button->control.identity = actr_ui_state->sequence++;
@@ -394,7 +401,7 @@ struct ActrUIControlButton *actr_ui_button(int x, int y, int w, int h, char *lab
 
 struct ActrUIControlGradient *actr_ui_gradient(int x, int y, int w, int h, unsigned int color, int all)
 {
-    struct ActrUIControlGradient *gradient = actr_malloc(sizeof(struct ActrUIControlGradient));
+    struct ActrUIControlGradient *gradient = (struct ActrUIControlGradient *)actr_malloc(sizeof(struct ActrUIControlGradient));
     _actr_ui_default(&gradient->control);
     gradient->control.type = ActrUITypeGradient;
     gradient->control.identity = actr_ui_state->sequence++;
@@ -410,7 +417,7 @@ struct ActrUIControlGradient *actr_ui_gradient(int x, int y, int w, int h, unsig
 
 struct ActrUIControlContainer *actr_ui_container(int x, int y, int w, int h)
 {
-    struct ActrUIControlContainer *container = actr_malloc(sizeof(struct ActrUIControlContainer));
+    struct ActrUIControlContainer *container = (struct ActrUIControlContainer *)actr_malloc(sizeof(struct ActrUIControlContainer));
     _actr_ui_default(&container->control);
     container->control.type = ActrUITypeContainer;
     container->control.identity = actr_ui_state->sequence++;
@@ -424,7 +431,7 @@ struct ActrUIControlContainer *actr_ui_container(int x, int y, int w, int h)
 
 struct ActrUIControlText *actr_ui_text(int x, int y, int w, int h, char *value)
 {
-    struct ActrUIControlText *text = actr_malloc(sizeof(struct ActrUIControlText));
+    struct ActrUIControlText *text = (struct ActrUIControlText *)actr_malloc(sizeof(struct ActrUIControlText));
     _actr_ui_default(&text->control);
     text->control.type = ActrUITypeText;
     text->control.identity = actr_ui_state->sequence++;
@@ -455,7 +462,8 @@ struct ActrPoint32 _actr_ui_get_control_position(struct ActrUIControl *control)
     return result;
 }
 
-int _actr_ui_control_is_hovered(struct ActrUIControl * control) {
+int _actr_ui_control_is_hovered(struct ActrUIControl *control)
+{
     if (actr_ui_state->hovered == control)
     {
         return 1;
@@ -463,7 +471,8 @@ int _actr_ui_control_is_hovered(struct ActrUIControl * control) {
     return 0;
 }
 
-int _actr_ui_control_is_focused(struct ActrUIControl * control) {
+int _actr_ui_control_is_focused(struct ActrUIControl *control)
+{
     if (actr_ui_state->focused == control)
     {
         return 1;
@@ -485,10 +494,10 @@ void _actr_ui_set_stroke(unsigned int color)
 
 void _actr_ui_draw_text(struct ActrUIControlText *text)
 {
-    
+
     struct ActrPoint32 position;
     struct ActrSize32 size;
-    
+
     size.w = text->control.leaf->bounds.size.w;
     size.h = text->control.leaf->bounds.size.h;
 
@@ -501,14 +510,16 @@ void _actr_ui_draw_text(struct ActrUIControlText *text)
         position.x = text->control.leaf->bounds.point.x;
         position.y = text->control.leaf->bounds.point.y;
     }
-    
+
     int focused = _actr_ui_control_is_focused((struct ActrUIControl *)text);
     int hovered = _actr_ui_control_is_hovered((struct ActrUIControl *)text);
 
-    if (focused) _actr_ui_set_fill(text->control.backgroundColorFocused);
-    else if (hovered) _actr_ui_set_fill(text->control.backgroundColorHovered);
-    else _actr_ui_set_fill(text->control.backgroundColor);
-    
+    if (focused)
+        _actr_ui_set_fill(text->control.backgroundColorFocused);
+    else if (hovered)
+        _actr_ui_set_fill(text->control.backgroundColorHovered);
+    else
+        _actr_ui_set_fill(text->control.backgroundColor);
 
     actr_canvas2d_fill_rect(position.x, position.y, size.w, size.h);
 
@@ -518,10 +529,13 @@ void _actr_ui_draw_text(struct ActrUIControlText *text)
     int halfChars = maxChars / 2;
     int charCount = strlen(text->value);
     int substart = text->cursor - halfChars;
-    
-    if (focused) _actr_ui_set_fill(text->control.foregroundColorFocused);
-    else if (hovered) _actr_ui_set_fill(text->control.foregroundColorHovered);
-    else _actr_ui_set_fill(text->control.foregroundColor);
+
+    if (focused)
+        _actr_ui_set_fill(text->control.foregroundColorFocused);
+    else if (hovered)
+        _actr_ui_set_fill(text->control.foregroundColorHovered);
+    else
+        _actr_ui_set_fill(text->control.foregroundColor);
 
     if (charCount > maxChars)
     {
@@ -543,10 +557,13 @@ void _actr_ui_draw_text(struct ActrUIControlText *text)
         actr_canvas2d_fill_text(position.x + padSide, position.y + size.h - 5, text->value);
     }
 
-    if (focused) _actr_ui_set_stroke(text->control.borderColorFocused);
-    else if (hovered) _actr_ui_set_stroke(text->control.borderColorHovered);
-    else _actr_ui_set_stroke(text->control.borderColor);
-    
+    if (focused)
+        _actr_ui_set_stroke(text->control.borderColorFocused);
+    else if (hovered)
+        _actr_ui_set_stroke(text->control.borderColorHovered);
+    else
+        _actr_ui_set_stroke(text->control.borderColor);
+
     actr_canvas2d_stroke_rect(position.x, position.y, size.w, size.h);
 
     if (focused)
@@ -559,7 +576,6 @@ void _actr_ui_draw_text(struct ActrUIControlText *text)
         actr_canvas2d_lineto(cursorStart + (text->cursor + 1 - substart) * charWidth, position.y + size.h - 3);
         actr_canvas2d_stroke();
     }
-
 }
 
 void _actr_ui_draw_gradient(struct ActrUIControlGradient *gradient)
@@ -575,8 +591,7 @@ void _actr_ui_draw_gradient(struct ActrUIControlGradient *gradient)
         actr_unpack_bytes(gradient->control.backgroundColor, &r, &g, &b, &a);
         actr_canvas2d_fill_gradient_pick(
             bounds->point.x, bounds->point.y, bounds->size.w, bounds->size.h,
-            r, g, b
-        );
+            r, g, b);
     }
 }
 
@@ -602,10 +617,13 @@ void _actr_ui_draw_button(struct ActrUIControlButton *button)
     int hovered = _actr_ui_control_is_hovered((struct ActrUIControl *)button);
 
     // background
-    if (focused) _actr_ui_set_fill(button->control.backgroundColorFocused);
-    else if (hovered) _actr_ui_set_fill(button->control.backgroundColorHovered);
-    else _actr_ui_set_fill(button->control.backgroundColor);
-    
+    if (focused)
+        _actr_ui_set_fill(button->control.backgroundColorFocused);
+    else if (hovered)
+        _actr_ui_set_fill(button->control.backgroundColorHovered);
+    else
+        _actr_ui_set_fill(button->control.backgroundColor);
+
     actr_canvas2d_fill_rect(bounds->point.x, bounds->point.y, bounds->size.w, bounds->size.h);
 
     int charWidth = 9;
@@ -614,10 +632,13 @@ void _actr_ui_draw_button(struct ActrUIControlButton *button)
     int charCount = strlen(button->label);
 
     // label
-    if (focused) _actr_ui_set_fill(button->control.foregroundColorFocused);
-    else if (hovered) _actr_ui_set_fill(button->control.foregroundColorHovered);
-    else _actr_ui_set_fill(button->control.foregroundColor);
-    
+    if (focused)
+        _actr_ui_set_fill(button->control.foregroundColorFocused);
+    else if (hovered)
+        _actr_ui_set_fill(button->control.foregroundColorHovered);
+    else
+        _actr_ui_set_fill(button->control.foregroundColor);
+
     int textLift = 8;
     if (charCount > maxChars)
     {
@@ -631,16 +652,20 @@ void _actr_ui_draw_button(struct ActrUIControlButton *button)
     }
 
     // border
-    if (focused) _actr_ui_set_stroke(button->control.borderColorFocused);
-    else if (hovered) _actr_ui_set_stroke(button->control.borderColorHovered);
-    else _actr_ui_set_stroke(button->control.borderColor);
-    
+    if (focused)
+        _actr_ui_set_stroke(button->control.borderColorFocused);
+    else if (hovered)
+        _actr_ui_set_stroke(button->control.borderColorHovered);
+    else
+        _actr_ui_set_stroke(button->control.borderColor);
+
     actr_canvas2d_stroke_rect(bounds->point.x, bounds->point.y, bounds->size.w, bounds->size.h);
 }
 void drawing(int i);
 void actr_ui_draw(double delta)
 {
-    if (actr_ui_state->valid == 1) {
+    if (actr_ui_state->valid == 1)
+    {
         return;
     }
     actr_ui_state->valid = 1;
@@ -649,12 +674,12 @@ void actr_ui_draw(double delta)
     actr_canvas2d_fill_rect(-10, -10, actr_ui_state->canvas_size.w + 20, actr_ui_state->canvas_size.h + 20);
 
     _actr_ui_query(0, 0, actr_ui_state->canvas_size.w, actr_ui_state->canvas_size.h);
-    
+
     drawing(actr_ui_state->results->count);
     for (int i = 0; i < actr_ui_state->results->count; i++)
     {
-        struct ActrQuadTreeLeaf * leaf = (struct ActrQuadTreeLeaf *)actr_ui_state->results->head[i];
-        
+        struct ActrQuadTreeLeaf *leaf = (struct ActrQuadTreeLeaf *)actr_ui_state->results->head[i];
+
         struct ActrUIControl *control = (struct ActrUIControl *)leaf->item;
 
         if (control->hidden)
@@ -694,7 +719,6 @@ void actr_ui_draw(double delta)
     }
 
     actr_ui_state->results->count = 0;
-
 }
 
 #endif

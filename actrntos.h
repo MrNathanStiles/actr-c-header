@@ -56,7 +56,7 @@ char *itos(long long value)
 {
     char buffer[256];
     int i = _itos(value, buffer);
-    char *result = actr_malloc(i + 1);
+    char *result = (char *)actr_malloc(i + 1);
 
     for (int j = 0; j < i; j++)
     {
@@ -124,7 +124,7 @@ char *ftos(double value, int precision)
         i += _itos((long long)fpart, buffer + i);
     }
 
-    char *result = actr_malloc(i + 1);
+    char *result = (char *)actr_malloc(i + 1);
 
     for (int j = 0; j < i; j++)
     {
