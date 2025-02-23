@@ -124,7 +124,7 @@ void actr_ui_init(int w, int h)
 
 struct ActrUIControl *actr_ui_get_control(int identity)
 {
-    return (ActrUIControl *)actr_hash_table_find(actr_ui_state->controls, identity);
+    return (struct ActrUIControl *)actr_hash_table_find(actr_ui_state->controls, identity);
 }
 
 void actr_ui_remove_control(void *remove)
