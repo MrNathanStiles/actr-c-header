@@ -22,7 +22,7 @@ struct ActrVector *actr_vector_init(int initialSize, int incrementSize)
 
     if (initialSize > 0)
     {
-        result->head = actr_malloc(sizeof(void *) * initialSize);
+        result->head = (void**)actr_malloc(sizeof(void *) * initialSize);
         result->allocated = initialSize;
     }
 
