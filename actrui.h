@@ -108,6 +108,12 @@ void _actr_ui_gradient_dispose(struct ActrUIControlGradient *gradient)
     _actr_ui_control_dispose((struct ActrUIControl *)gradient);
 }
 
+void actr_ui_resize(int w, int h) {
+    actr_ui_state->canvas_size.w = w;
+    actr_ui_state->canvas_size.h = h;
+    actr_ui_invalidate();
+}
+
 void actr_ui_init(int w, int h)
 {
     actr_ui_state = (struct ActrUIState *)actr_malloc(sizeof(struct ActrUIState));
@@ -117,10 +123,9 @@ void actr_ui_init(int w, int h)
     actr_ui_state->sequence = 1;
     actr_ui_state->focused = (struct ActrUIControl *)0;
     actr_ui_state->hovered = (struct ActrUIControl *)0;
-    actr_ui_state->canvas_size.w = w;
-    actr_ui_state->canvas_size.h = h;
-    actr_ui_invalidate();
+    actr_ui_resize(w, h);
 }
+
 
 struct ActrUIControl *actr_ui_get_control(int identity)
 {
