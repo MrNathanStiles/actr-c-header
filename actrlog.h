@@ -1,6 +1,7 @@
 #ifndef ACTRLOG_H
 #define ACTRLOG_H
 #include "actrwasm.h"
+#include "actrstring.h"
 
 extern void _actr_log_length(const char * pointer, int size);
 
