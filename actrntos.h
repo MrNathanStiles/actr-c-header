@@ -2,6 +2,7 @@
 #define ACTRNTOS_H
 #include "actrwasm.h"
 #include "actrlog.h"
+#include "actrstring.h"
 
 void reverse(char *str, int len)
 {
