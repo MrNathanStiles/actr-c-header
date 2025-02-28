@@ -2,6 +2,7 @@
 #define ACTRFORMAT_H
 #include "actrntos.h"
 #include "actrvector.h"
+#include "actrstring.h"
 
 struct ActrFormatState
 {
@@ -47,12 +48,12 @@ void _actr_format_free(struct ActrFormatState *state)
 }
 char *actr_format_close(struct ActrFormatState *state)
 {
-    int length = strlen(state->format);
+    int length = actr_strlen(state->format);
     int lengths[state->values->count];
 
     for (int i = 0; i < state->values->count; i++)
     {
-        lengths[i] = strlen((const char *)state->values->head[i]);
+        lengths[i] = actr_strlen((const char *)state->values->head[i]);
         length += lengths[i];
     }
 
