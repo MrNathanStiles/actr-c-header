@@ -56,4 +56,18 @@ char * actr_substr(char *text, int start, int length)
     }
     return newText;
 }
+void actr_heap_string(char **target, char *text)
+{
+    if (*target != 0)
+    {
+        actr_free(*target);
+    }
+    int size = strlen(text);
+    char *result = (char *)actr_malloc(size + 1);
+    for (int i = 0; i < size; i++)
+    {
+        result[i] = text[i];
+    }
+    *target = result;
+}
 #endif
