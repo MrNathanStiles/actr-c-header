@@ -1,3 +1,6 @@
+#ifndef ACTRSTRING_H
+#define ACTRSTRING_H
+
 long long actr_parseInt(char *s){
     long long n=strlen(s);
     long long buffer=0;
@@ -53,3 +56,4 @@ char * actr_substr(char *text, int start, int length)
     }
     return newText;
 }
+#endif
