@@ -1,4 +1,5 @@
 #include "actrwasm.h"
+#include "actrstring.h"
 
 #ifndef ACTRJSON_H
 #define ACTRJSON_H
