@@ -6,6 +6,7 @@
 #include "actrhashtable.h"
 #include "actrmergesortmutate.h"
 #include "actrlog.h"
+#include "actrstring.h"
 
 enum ActrUIType
 {
@@ -158,7 +159,7 @@ void _actr_ui_key_down_text(struct ActrUIControlText *text, int key)
 {
     int newLength;
     char *newValue;
-    int currentLength = strlen(text->value);
+    int currentLength = actr_strlen(text->value);
     if (key == 1)
     {
         // left arrow
@@ -345,7 +346,7 @@ void _actr_ui_set_focus(struct ActrUIControl *control)
     if (control->type == ActrUITypeText)
     {
         struct ActrUIControlText *text = (struct ActrUIControlText *)control;
-        text->cursor = strlen(text->value);
+        text->cursor = actr_strlen(text->value);
     }
     actr_ui_invalidate();
 }
@@ -527,7 +528,7 @@ void _actr_ui_draw_text(struct ActrUIControlText *text)
     int padSide = 5;
     int maxChars = (size.w - padSide * 2) / charWidth;
     int halfChars = maxChars / 2;
-    int charCount = strlen(text->value);
+    int charCount = actr_strlen(text->value);
     int substart = text->cursor - halfChars;
 
     if (focused)
@@ -629,7 +630,7 @@ void _actr_ui_draw_button(struct ActrUIControlButton *button)
     int charWidth = 9;
     int padSide = 6;
     int maxChars = (bounds->size.w - padSide * 2) / charWidth;
-    int charCount = strlen(button->label);
+    int charCount = actr_strlen(button->label);
 
     // label
     if (focused)
