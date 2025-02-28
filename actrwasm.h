@@ -127,19 +127,5 @@ void actr_unpack_bytes(unsigned int value, unsigned char *r, unsigned char *g, u
     *a = value & 0xFF;
 }
 
-void actr_heap_string(char **target, char *text)
-{
-    if (*target != 0)
-    {
-        actr_free(*target);
-    }
-    int size = strlen(text);
-    char *result = (char *)actr_malloc(size + 1);
-    for (int i = 0; i < size; i++)
-    {
-        result[i] = text[i];
-    }
-    *target = result;
-}
 void actr_debugger(int value);
 #endif
