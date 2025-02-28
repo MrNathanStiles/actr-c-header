@@ -100,7 +100,7 @@ char * float_to_char(double x)
     char * result = _float_to_char(x, &buffer[0]);
     int len = FTOS_CHAR_BUFF_SIZE - (result - &buffer[0]);
     
-    return substr(result, 0, len);
+    return actr_substr(result, 0, len);
 }
 
 char *ftos(double value, int precision)
