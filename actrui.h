@@ -548,7 +548,7 @@ void _actr_ui_draw_text(struct ActrUIControlText *text)
         {
             substart -= substart + maxChars - charCount;
         }
-        char *display = substr(text->value, substart, maxChars);
+        char *display = actr_substr(text->value, substart, maxChars);
         actr_canvas2d_fill_text(position.x + padSide, position.y + size.h - 5, display);
         actr_free(display);
     }
@@ -643,7 +643,7 @@ void _actr_ui_draw_button(struct ActrUIControlButton *button)
     int textLift = 8;
     if (charCount > maxChars)
     {
-        char *label = substr(button->label, 0, maxChars);
+        char *label = actr_substr(button->label, 0, maxChars);
         actr_canvas2d_fill_text(bounds->point.x + padSide, bounds->point.y + bounds->size.h - textLift, label);
         actr_free(label);
     }
