@@ -667,7 +667,7 @@ void _actr_ui_draw_button(struct ActrUIControlButton *button)
 
     actr_canvas2d_stroke_rect(bounds->point.x, bounds->point.y, bounds->size.w, bounds->size.h);
 }
-void drawing(int i);
+
 void actr_ui_draw(double delta)
 {
     if (actr_ui_state->valid == 1)
@@ -681,7 +681,7 @@ void actr_ui_draw(double delta)
 
     _actr_ui_query(0, 0, actr_ui_state->canvas_size.w, actr_ui_state->canvas_size.h);
 
-    drawing(actr_ui_state->results->count);
+
     for (int i = 0; i < actr_ui_state->results->count; i++)
     {
         struct ActrQuadTreeLeaf *leaf = (struct ActrQuadTreeLeaf *)actr_ui_state->results->head[i];
